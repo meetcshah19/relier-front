@@ -1,23 +1,205 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Grid } from "@material-ui/core";
+import { Card } from "@material-ui/core";
+import SignIn from "./components/Signin";
+import SignUp from "./components/Signup";
+import AppBar from "@material-ui/core/AppBar";
+import Typography from "@material-ui/core/Typography";
+import Toolbar from "@material-ui/core/Toolbar";
+import { useState } from "react";
+import { useEffect } from "react";
+import { Route } from "react-router-dom";
+import ReactCardFlip from "react-card-flip";
+import { useHistory } from "react-router-dom";
+import HomePage from "./components/HomePage";
+import Vc from "./components/Vc";
+import validator from "validator";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useLocation } from 'react-router-dom';
 
 function App() {
+  const history = useHistory();
+  const location = useLocation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailWarn, setEmailWarn] = useState(false);
+  const [passwordWarn, setPasswordWarn] = useState(false);
+  const [name, setName] = useState("");
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    console.log(location.pathname);
+    if (Cookies.get("token")&&location.pathname==="/") {
+      history.push("/home");
+    }
+  }, [history]);
+  const changeEmail = (email) => {
+    setEmail(email);
+    if (validator.isEmail(email)) {
+      setEmailWarn(false);
+    } else {
+      setEmailWarn(true);
+    }
+  }
+  const changePassword = (password) => {
+    setPassword(password);
+    if (
+      validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 0,
+        minUppercase: 0,
+        minNumbers: 0,
+        minSymbols: 1,
+      })
+    ) {
+      setPasswordWarn(false);
+    } else {
+      setPasswordWarn(true);
+    }
+  };
+  const login = () => {
+    if (
+      validator.isEmail(email) &&
+      validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 0,
+        minUppercase: 0,
+        minNumbers: 0,
+        minSymbols: 1,
+      })
+    ) {
+      var data = JSON.stringify({
+        email: email,
+        password: password,
+      });
+
+      var config = {
+        method: "post",
+        url: "/api/login",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      axios(config)
+        .then(function (response) {
+          console.log(JSON.stringify(response.data));
+          Cookies.set("token", response.data.token, {
+            expires: 365,
+            secure: true,
+          });
+          history.push("/home");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  };
+
+  const register = () => {
+    if (
+      validator.isEmail(email) &&
+      validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 0,
+        minUppercase: 0,
+        minNumbers: 0,
+        minSymbols: 1,
+      })
+    ) {
+      var data = JSON.stringify({
+        email: email,
+        password: password,
+        name: name,
+      });
+
+      var config = {
+        method: "post",
+        url: "/api/users",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      axios(config)
+        .then(function (response) {
+          console.log(JSON.stringify(response.data));
+          Cookies.set("token", response.data.token, {
+            expires: 365,
+            secure: true,
+          });
+          history.push("/home");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Route
+        path="/"
+        exact
+        render={(props) => (
+          <>
+            <div className="login">
+              <Grid
+                container
+                direction="column"
+                justify="center"
+                alignItems="center"
+                style={{ minHeight: "100vh", background: "#fafafa" }}
+              >
+                <Grid container item xs={3}>
+                  <AppBar style={{ alignItems: "center" }}>
+                    <Toolbar>
+                      <Typography variant="h4">Relier</Typography>
+                    </Toolbar>
+                  </AppBar>
+                </Grid>
+                <Grid container item xs={3}>
+                  <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
+                    <Card elevation={3}>
+                      <SignIn
+                        email={email}
+                        changeEmail={changeEmail}
+                        password={password}
+                        changePassword={changePassword}
+                        onLogin={login}
+                        setFlip={setFlipped}
+                        emailWarn={emailWarn}
+                        passwordWarn={passwordWarn}
+                      ></SignIn>
+                    </Card>
+                    <Card elevation={3}>
+                      <SignUp
+                        email={email}
+                        changeEmail={changeEmail}
+                        password={password}
+                        changePassword={changePassword}
+                        name={name}
+                        setName={setName}
+                        setFlip={setFlipped}
+                        onRegister={register}
+                        emailWarn={emailWarn}
+                        passwordWarn={passwordWarn}
+                      ></SignUp>
+                    </Card>
+                  </ReactCardFlip>
+                </Grid>
+              </Grid>
+            </div>
+          </>
+        )}
+      />
+      <Route path="/home" component={HomePage} />
+      <Route path="/vc/:sid">
+        <Vc />
+      </Route>
     </div>
   );
 }
