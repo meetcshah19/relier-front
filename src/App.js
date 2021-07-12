@@ -16,7 +16,8 @@ import Vc from "./components/Vc";
 import validator from "validator";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
+import TeamPage from "./components/TeamPage";
 
 function App() {
   const history = useHistory();
@@ -30,7 +31,7 @@ function App() {
 
   useEffect(() => {
     console.log(location.pathname);
-    if (Cookies.get("token")&&location.pathname==="/") {
+    if (Cookies.get("token") && location.pathname === "/") {
       history.push("/home");
     }
   }, [history]);
@@ -41,7 +42,7 @@ function App() {
     } else {
       setEmailWarn(true);
     }
-  }
+  };
   const changePassword = (password) => {
     setPassword(password);
     if (
@@ -155,9 +156,13 @@ function App() {
                 style={{ minHeight: "100vh", background: "#fafafa" }}
               >
                 <Grid container item xs={3}>
-                  <AppBar style={{ alignItems: "center" }}>
+                  <AppBar style={{ alignItems: "flex-start" }}>
                     <Toolbar>
-                      <Typography variant="h4">Relier</Typography>
+                      <Grid container justify="flex-start">
+                        <Typography variant="h4" color="inherit" noWrap>
+                          Relier
+                        </Typography>
+                      </Grid>
                     </Toolbar>
                   </AppBar>
                 </Grid>
@@ -196,9 +201,14 @@ function App() {
           </>
         )}
       />
-      <Route path="/home" component={HomePage} />
+      <Route path="/home/:teamSecret?">
+        <HomePage />
+      </Route>
       <Route path="/vc/:sid">
         <Vc />
+      </Route>
+      <Route path="/team/:secret">
+        <TeamPage />
       </Route>
     </div>
   );

@@ -1,8 +1,8 @@
-import { Avatar, Button, Fab } from "@material-ui/core";
+import { Avatar, Button, CardActionArea, Fab } from "@material-ui/core";
 import axios from "axios";
-import Cookies from "js-cookie";
+import Cookies, { set } from "js-cookie";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import React from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Card from "@material-ui/core/Card";
@@ -65,6 +65,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function HomePage() {
+  const { teamSecret } = useParams();
   const [createTeamOpen, setCreateTeamOpen] = useState(false);
   const [joinTeamOpen, setJoinTeamOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
@@ -77,14 +78,16 @@ export default function HomePage() {
     if (!Cookies.get("token")) {
       history.push("/");
     }
+    if (teamSecret) {
+      setTeamCode(teamSecret);
+      handleJoinOpen();
+    }
   }, [history]);
 
   useEffect(() => {
     loadTeams();
   }, []);
   const onJoinTeam = () => {
-    var axios = require("axios");
-
     var config = {
       method: "post",
       url: `/api/secure/teams/${teamCode}`,
@@ -145,6 +148,9 @@ export default function HomePage() {
         console.log(error);
       });
   }
+  const openTeam = (secret) => {
+    var win = window.open(`/team/${secret}`, "_blank");
+  };
   function onCreateCall() {
     var win = window.open(
       `/vc/${Math.random().toString(36).substring(7)}`,
@@ -165,20 +171,22 @@ export default function HomePage() {
   };
 
   const handleJoinClose = () => {
+    setTeamCode("");
     setJoinTeamOpen(false);
   };
 
   return (
     <>
-      <Fab
-        variant="extended"
-        className={classes.fab}
-        color="primary"
-        onClick={onCreateCall}
+      <Link
+        to={`/vc/${Math.random().toString(36).substring(7)}`}
+        style={{ textDecoration: "none" }}
+        target="_blank"
       >
-        <VideoCallIcon className={classes.extendedIcon} />
-        Start Instant Call
-      </Fab>
+        <Fab variant="extended" className={classes.fab} color="primary">
+          <VideoCallIcon className={classes.extendedIcon} />
+          Start Instant Call
+        </Fab>
+      </Link>
       <div>
         <Dialog
           open={createTeamOpen}
@@ -240,11 +248,25 @@ export default function HomePage() {
         </Dialog>
       </div>
       <CssBaseline />
-      <AppBar style={{ alignItems: "center" }} position="relative">
+      <AppBar position="relative">
         <Toolbar>
-          <Typography variant="h4" color="inherit" noWrap>
-            Relier
-          </Typography>
+          <Grid container justify="flex-start">
+            <Typography variant="h4" color="inherit" noWrap>
+              Relier
+            </Typography>
+          </Grid>
+          <Grid container justify="flex-end">
+            <Button
+              color="inherit"
+              variant="outlined"
+              onClick={() => {
+                Cookies.remove("token");
+                history.push("/");
+              }}
+            >
+              Logout
+            </Button>
+          </Grid>
         </Toolbar>
       </AppBar>
       <main>
@@ -299,30 +321,38 @@ export default function HomePage() {
             </Grid>
             {teams.map((team) => (
               <Grid item key={team.id} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardContent
-                    style={{
-                      alignItems: "center",
-                      display: "flex",
-                      // flexDirection: "column",
-                      paddingBottom: 0,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Avatar className={classes.orange} variant="square">
-                      {team.name.substring(0, 1)}
-                    </Avatar>
-                  </CardContent>
-                  <CardContent
-                    className={classes.cardContent}
-                    style={{ paddingBottom: 0 }}
-                  >
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {team.name}
-                    </Typography>
-                  </CardContent>
+                <Card className={classes.card} hoverable>
+                  <div style={{ cursor: "pointer" }}>
+                    <Link
+                      to={`/team/${team.secret}`}
+                      style={{ textDecoration: "none" }}
+                      target="_blank"
+                    >
+                      <CardContent
+                        style={{
+                          alignItems: "center",
+                          display: "flex",
+                          // flexDirection: "column",
+                          paddingBottom: 0,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Avatar className={classes.orange} variant="square">
+                          {team.name.substring(0, 1)}
+                        </Avatar>
+                      </CardContent>
+                      <CardContent
+                        className={classes.cardContent}
+                        style={{ paddingBottom: 0 }}
+                      >
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {team.name}
+                        </Typography>
+                      </CardContent>
+                    </Link>
+                  </div>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button size="small" color="primary" onClick={() => {}}>
                       Leave
                     </Button>
                   </CardActions>
