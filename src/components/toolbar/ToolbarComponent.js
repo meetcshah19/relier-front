@@ -68,7 +68,14 @@ export default class ToolbarComponent extends Component {
           <div id="navSessionInfo">
             {this.props.sessionId && (
               <div id="titleContent">
-                <Button>Invite</Button>
+                <Button size="small" color="secondary"
+                  onClick={() => {
+                    let s = window.location.toString();
+                    navigator.clipboard.writeText(s);
+                  }}
+                >
+                  Copy Invite
+                </Button>
               </div>
             )}
           </div>
@@ -130,7 +137,7 @@ export default class ToolbarComponent extends Component {
               color="inherit"
               onClick={this.toggleChat}
               id="navChatButton"
-              style={{ "top": "0" }}
+              style={{ paddingTop: 8 }}
             >
               {this.props.showNotification && <div id="point" className="" />}
               <Tooltip title="Chat">

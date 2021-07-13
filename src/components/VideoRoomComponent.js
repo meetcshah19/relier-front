@@ -9,6 +9,7 @@ import ChatComponent from "./chat/ChatComponent";
 import OpenViduLayout from "../layout/openvidu-layout";
 import UserModel from "../models/user-model";
 import ToolbarComponent from "./toolbar/ToolbarComponent";
+import Cookies from "js-cookie";
 
 var localUser = new UserModel();
 
@@ -26,7 +27,7 @@ class VideoRoomComponent extends Component {
     let sessionName = this.props.sessionName ? this.props.sessionName : "new";
     let userName = this.props.user
       ? this.props.user
-      : "OpenVidu_User" + Math.floor(Math.random() * 100);
+      : "RelierUser" + Math.floor(Math.random() * 100);
     this.remotes = [];
     this.localUserAccessAllowed = false;
     this.state = {
@@ -561,18 +562,6 @@ class VideoRoomComponent extends Component {
     );
   }
 
-  /**
-   * --------------------------
-   * SERVER-SIDE RESPONSIBILITY
-   * --------------------------
-   * These methods retrieve the mandatory user token from OpenVidu Server.
-   * This behaviour MUST BE IN YOUR SERVER-SIDE IN PRODUCTION (by using
-   * the API REST, openvidu-java-client or openvidu-node-client):
-   *   1) Initialize a session in OpenVidu Server	(POST /api/sessions)
-   *   2) Generate a token in OpenVidu Server		(POST /api/tokens)
-   *   3) The token must be consumed in Session.connect() method
-   */
-
   getToken() {
     return this.createSession(this.state.mySessionId).then((sessionId) =>
       this.createToken(sessionId)
@@ -582,46 +571,11 @@ class VideoRoomComponent extends Component {
   createSession(sessionId) {
     return new Promise((resolve, reject) => {
       var data = JSON.stringify({ customSessionId: sessionId });
-      // axios
-      //     .post(this.OPENVIDU_SERVER_URL + '/openvidu/api/sessions', data, {
-      //         headers: {
-      //             Authorization: 'Basic ' + btoa('OPENVIDUAPP:' + this.OPENVIDU_SERVER_SECRET),
-      //             'Content-Type': 'application/json',
-      //         },
-      //     })
-      // .then((response) => {
-      // console.log('CREATE SESION', response);
-      // resolve(response.data.id);
-      //     })
-      //     .catch((response) => {
-      //         var error = Object.assign({}, response);
-      //         if (error.response && error.response.status === 409) {
-      //             resolve(sessionId);
-      //         } else {
-      //             console.log(error);
-      //             console.warn(
-      //                 'No connection to OpenVidu Server. This may be a certificate error at ' + this.OPENVIDU_SERVER_URL,
-      //             );
-      //             if (
-      //                 window.confirm(
-      //                     'No connection to OpenVidu Server. This may be a certificate error at "' +
-      //                         this.OPENVIDU_SERVER_URL +
-      //                         '"\n\nClick OK to navigate and accept it. ' +
-      //                         'If no certificate warning is shown, then check that your OpenVidu Server is up and running at "' +
-      //                         this.OPENVIDU_SERVER_URL +
-      //                         '"',
-      //                 )
-      //             ) {
-      //                 window.location.assign(this.OPENVIDU_SERVER_URL + '/accept-certificate');
-      //             }
-      //         }
-      //     });
       var config = {
         method: "post",
         url: "/api/video/create",
         headers: {
-          Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJNZWV0IFNoYWgiLCJpYXQiOjE2MjQ2NTE1MDd9.7prfxCA4FKaFL2L_LcTG9qEuy6h6CiJVSDyqGRS6H8s",
+          Authorization: `Bearer ${Cookies.get("token")}`,
           "Content-Type": "application/json",
         },
         data: data,
@@ -641,33 +595,12 @@ class VideoRoomComponent extends Component {
   createToken(sessionId) {
     return new Promise((resolve, reject) => {
       var data = JSON.stringify({});
-      //   axios
-      //     .post(
-      //       this.OPENVIDU_SERVER_URL +
-      //         "/openvidu/api/sessions/" +
-      //         sessionId +
-      //         "/connection",
-      //       data,
-      //       {
-      //         headers: {
-      //           Authorization:
-      //             "Basic " + btoa("OPENVIDUAPP:" + this.OPENVIDU_SERVER_SECRET),
-      //           "Content-Type": "application/json",
-      //         },
-      //       }
-      //     )
-      //     .then((response) => {
-      //       console.log("TOKEN", response);
-      //       resolve(response.data.token);
-      //     })
-      //     .catch((error) => reject(error));
 
       var config = {
         method: "post",
         url: "/api/vc/" + sessionId,
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsIm5hbWUiOiJNZWV0IFNoYWgiLCJpYXQiOjE2MjQ1NzkwMzR9.nWWp1uzyrWGn4Sfl2ro_r3UxDiH6gxHexRLW2vzyamc",
+          Authorization: `Bearer ${Cookies.get("token")}`,
         },
       };
 

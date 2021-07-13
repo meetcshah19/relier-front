@@ -73,7 +73,25 @@ export default function HomePage() {
   const [teams, setTeams] = useState([]);
   const classes = useStyles();
   const history = useHistory();
+  const leaveTeam = (secret) => {
+    var config = {
+      method: "post",
+      url: `/api/secure/teams/leave/${secret}`,
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    };
 
+    axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+        loadTeams();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+  }
   useEffect(() => {
     if (!Cookies.get("token")) {
       history.push("/");
@@ -352,7 +370,7 @@ export default function HomePage() {
                     </Link>
                   </div>
                   <CardActions>
-                    <Button size="small" color="primary" onClick={() => {}}>
+                    <Button size="small" color="primary" onClick={() => { leaveTeam(team.secret); }}>
                       Leave
                     </Button>
                   </CardActions>

@@ -9,18 +9,13 @@ import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
-import Badge from "@material-ui/core/Badge";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import ListSubheader from "@material-ui/core/ListSubheader";
-import AssignmentIcon from "@material-ui/icons/Assignment";
 import { deepOrange } from "@material-ui/core/colors";
 import AddIcon from "@material-ui/icons/Add";
 import ShareIcon from "@material-ui/icons/Share";
@@ -34,7 +29,6 @@ import {
   InputAdornment,
   Paper,
 } from "@material-ui/core";
-import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
 import SendIcon from "@material-ui/icons/Send";
 import axios from "axios";
@@ -144,7 +138,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const socket = io("http://localhost:3000/").connect();
+const socket = io().connect();
+
 export default function TeamPage() {
   const history = useHistory();
   const { secret } = useParams();
@@ -157,10 +152,12 @@ export default function TeamPage() {
   const [createChannelOpen, setCreateChannelOpen] = useState(false);
   const [invite, setInvite] = useState(false);
   const [channel, setChannel] = useState("");
+  const [teamName, setTeamName] = useState("");
   useEffect(() => {
     if (!Cookies.get("token")) {
       history.push("/");
     }
+    findTeam();
     console.log(socket);
     socket.on("message", function (data) {
       console.log(data.message);
@@ -173,6 +170,30 @@ export default function TeamPage() {
     // elmnt.scrollIntoView();
   }, []);
 
+  function findTeam() {
+    var data = JSON.stringify({
+      secret: secret,
+    });
+
+    var config = {
+      method: "get",
+      url: "/api/secure/teams/",
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data[0].name);
+        setTeamName(response.data[0].name);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       sendMessage();
@@ -322,7 +343,6 @@ export default function TeamPage() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <div className={classes.root}>
@@ -435,7 +455,11 @@ export default function TeamPage() {
             <ListItemIcon onClick={handleDrawerClose}>
               <ChevronLeftIcon />
             </ListItemIcon>
-            <ListItemText primary="Team name" />
+            {teamName ? (
+              <ListItemText id="teamNameHeader" primary={teamName} />
+            ) : (
+              <></>
+            )}
           </ListItem>
         </List>
         {/* <div className={classes.toolbarIcon}>
@@ -613,7 +637,7 @@ export default function TeamPage() {
                           sendMessage(true);
                         }}
                       >
-                        <VideoCall fontSize="large"/>
+                        <VideoCall fontSize="large" />
                       </IconButton>
                       <IconButton
                         aria-label="send"
