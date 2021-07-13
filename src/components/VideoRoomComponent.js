@@ -106,12 +106,10 @@ class VideoRoomComponent extends Component {
 
   connectToSession() {
     if (this.props.token !== undefined) {
-      console.log("token received: ", this.props.token);
       this.connect(this.props.token);
     } else {
       this.getToken()
         .then((token) => {
-          console.log(token);
           this.connect(token);
         })
         .catch((error) => {
@@ -149,11 +147,7 @@ class VideoRoomComponent extends Component {
           });
         }
         alert("There was an error connecting to the session:", error.message);
-        console.log(
-          "There was an error connecting to the session:",
-          error.code,
-          error.message
-        );
+   
       });
   }
 
@@ -318,7 +312,6 @@ class VideoRoomComponent extends Component {
       remoteUsers.forEach((user) => {
         if (user.getConnectionId() === event.from.connectionId) {
           const data = JSON.parse(event.data);
-          console.log("EVENTO REMOTE: ", event.data);
           if (data.isAudioActive !== undefined) {
             user.setAudioActive(data.isAudioActive);
           }
@@ -469,7 +462,6 @@ class VideoRoomComponent extends Component {
     if (display === "block") {
       this.setState({ chatDisplay: display, messageReceived: false });
     } else {
-      console.log("chat", display);
       this.setState({ chatDisplay: display });
     }
     this.updateLayout();
@@ -583,7 +575,6 @@ class VideoRoomComponent extends Component {
 
       axios(config)
         .then(function (response) {
-          console.log("CREATE SESION", response);
           resolve(response.data.session_id);
         })
         .catch(function (error) {
@@ -606,8 +597,6 @@ class VideoRoomComponent extends Component {
 
       axios(config)
         .then(function (response) {
-          console.log(JSON.stringify(response.data));
-          console.log("TOKEN", response);
           resolve(response.data.token);
         })
         .catch(function (error) {

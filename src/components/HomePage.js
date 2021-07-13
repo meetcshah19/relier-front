@@ -84,7 +84,6 @@ export default function HomePage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         loadTeams();
       })
       .catch(function (error) {
@@ -116,7 +115,6 @@ export default function HomePage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         setJoinTeamOpen(false);
         loadTeams();
       })
@@ -139,7 +137,6 @@ export default function HomePage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         setCreateTeamOpen(false);
         loadTeams();
       })
@@ -148,7 +145,6 @@ export default function HomePage() {
       });
   };
   function loadTeams() {
-    console.log("bla");
     var config = {
       method: "get",
       url: "/api/secure/teams/",
@@ -159,7 +155,6 @@ export default function HomePage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         setTeams(response.data);
       })
       .catch(function (error) {

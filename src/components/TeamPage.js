@@ -160,7 +160,6 @@ export default function TeamPage() {
     findTeam();
     console.log(socket);
     socket.on("message", function (data) {
-      console.log(data.message);
       setMessages((messages) => [...messages, data.message]);
       var element = document.getElementById("main-container");
       element.scrollTop = element.scrollHeight;
@@ -187,7 +186,6 @@ export default function TeamPage() {
 
     axios(config)
       .then(function (response) {
-        console.log(response.data[0].name);
         setTeamName(response.data[0].name);
       })
       .catch(function (error) {
@@ -230,7 +228,6 @@ export default function TeamPage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         loadChannels();
       })
       .catch(function (error) {
@@ -239,8 +236,6 @@ export default function TeamPage() {
   };
 
   function sendMessage(is_vc = false) {
-    console.log(message.current.value);
-    console.log(socket);
     var d = new Date();
     let messageJSON;
     if (!is_vc) {
@@ -258,7 +253,6 @@ export default function TeamPage() {
         sender: { name: jwt_decode(Cookies.get("token")).name },
       };
     }
-    console.log(messageJSON + ":" + openChannel);
     socket.emit("send", {
       room: openChannel,
       message: messageJSON,
@@ -277,14 +271,12 @@ export default function TeamPage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
       })
       .catch(function (error) {
         console.log(error);
       });
   }
   function loadMessages(channel) {
-    console.log(channel);
     var config = {
       method: "get",
       url: `/api/secure/messages/${channel}`,
@@ -295,7 +287,6 @@ export default function TeamPage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         setMessages(response.data);
         var element = document.getElementById("main-container");
         element.scrollTop = element.scrollHeight;
@@ -316,7 +307,6 @@ export default function TeamPage() {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
         setChannels(response.data);
         clickChannel(response.data[0].secret);
       })
@@ -326,7 +316,6 @@ export default function TeamPage() {
   }
 
   function clickChannel(channel) {
-    console.log(channel);
     if (openChannel) {
       socket.emit("unsubscribe", openChannel);
       document.getElementById(openChannel).style.backgroundColor = "";
@@ -462,12 +451,6 @@ export default function TeamPage() {
             )}
           </ListItem>
         </List>
-        {/* <div className={classes.toolbarIcon}>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-              </div>
-     */}
         <Divider />
         <List
           style={{

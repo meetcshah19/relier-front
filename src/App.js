@@ -30,7 +30,6 @@ function App() {
   const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
-    console.log(location.pathname);
     if (Cookies.get("token") && location.pathname === "/") {
       history.push("/home");
     }
@@ -86,7 +85,6 @@ function App() {
 
       axios(config)
         .then(function (response) {
-          console.log(JSON.stringify(response.data));
           Cookies.set("token", response.data.token, {
             expires: 365,
             secure: true,
@@ -94,7 +92,6 @@ function App() {
           history.push("/home");
         })
         .catch(function (error) {
-          console.log(error);
         });
     }
   };
@@ -127,7 +124,6 @@ function App() {
 
       axios(config)
         .then(function (response) {
-          console.log(JSON.stringify(response.data));
           Cookies.set("token", response.data.token, {
             expires: 365,
             secure: true,
